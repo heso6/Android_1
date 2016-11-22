@@ -6,8 +6,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 
 // Ta klasa odpowiada dla widoku listy (RecyclerView) na pytania :
@@ -16,9 +21,13 @@ import java.util.List;
 // - jakie dane mają zawierać (onBindViewHolder) ?
 // Jej metody nie są wołane bezpośrednio przez nas, tylko przez komponenty systemu !
 public class RepositoriesAdapter extends RecyclerView.Adapter<RepositoriesAdapter.RepositoriesViewHolder> {
-
     // Zmienna w ktorej otrzymamy zbior obiektow, ktore chcemy wyswietlic na ekranie w postaci listy.
     private List<GitHubRepository> mData;
+    private RepositoryClickAction mClickListener;
+
+    public void setClickListener(RepositoryClickAction clickListener) {
+        mClickListener = clickListener;
+    }
 
     // w zwiazku z tym ze mData jest prywatne - dodalismy metode setData, pozwalajaca na ustawienie
     // danych do wyswietlenia.
@@ -49,6 +58,7 @@ public class RepositoriesAdapter extends RecyclerView.Adapter<RepositoriesAdapte
 
         // 2. Uzupelnij widok wiersza (parametr holder) danymi
         holder.mLabel.setText(repository.getName());
+        holder.mRepository = repository;
     }
 
     // Mowi dla RecycleView ile elementow ma zostac wyswietlone dla uzytkownika na ekranie.
@@ -62,12 +72,35 @@ public class RepositoriesAdapter extends RecyclerView.Adapter<RepositoriesAdapte
     // podczas tworzenia widoku tego wiersza (onCreateViewHolder), tak żebyśmy nie musieli robić tego
     // za każdym razem w funkcji onBindViewHolder.
     public class RepositoriesViewHolder extends RecyclerView.ViewHolder {
+        @BindView(android.R.id.text1)
         TextView mLabel;
+        //ViewHolder w zmiennej mRepository przechowuje informacje o biezacym wyswietlanym
+        // obiekcie GitHubRepository
+        GitHubRepository mRepository;
 
         public RepositoriesViewHolder(View itemView) {
             super(itemView);
-            mLabel = (TextView) itemView.findViewById(android.R.id.text1);
+            ButterKnife.bind(this, itemView);
+        }
+
+            //Podpinamy sie pod klikniecie danego wiersza (widoku) na liscie / na ekranie, w celu
+            // poinformowania mClickListenera o zdarzeniu
+        @OnClick
+        protected void  onViewClick() {
+
+            // wywolujemy zewnetrzny obiekt implementujacy interfejs RepositoryClickAction
+            // podajac mu obiekt GitHubRepository, ktory jest aktualnie wyswietlany w kliknietym wierszu tabeli
+            mClickListener.onClick(mRepository);
         }
     }
+    // Ten interfejs definiuje nam sposob powiadamiania zainteresowanych z zewnatrz o kliknieciach na wiersze
+    // reprezentujace konkretne obiekty GitHubRepository
+    public interface RepositoryClickAction {
+
+        void onClick(GitHubRepository repository);
+
+
+    }
+
 
 }
