@@ -1,5 +1,7 @@
 package farkowski.konrad.repositories;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by gosc on 21.11.2016.
  */
@@ -8,6 +10,7 @@ public class GitHubRepository {
 
     private long id;
     private String name;
+    @SerializedName("html_url") 
     private String htmlUrl;
 
     public long getId() {
